@@ -11,11 +11,10 @@ module.exports = class ImageDiffError extends BaseStateError {
     stateName,
     currImg,
     refImg,
-    diffImg,
     diffOpts,
     { diffBounds, diffClusters } = {}
   ) {
-    super(stateName, currImg, refImg, diffImg)
+    super(stateName, currImg, refImg)
 
     this.message = `images are different for "${stateName}" state`
     this.diffOpts = diffOpts

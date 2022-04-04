@@ -37,7 +37,13 @@ exports.handleImageDiff = async (currImg, refImg, state, opts) => {
   const diffImg = await createDiffImg(diffOpts)
 
   return Promise.reject(
-    ImageDiffError.create(state, currImg, refImg, diffImg, diffOpts, diffAreas)
+    ImageDiffError.create(
+      state,
+      currImg,
+      refImg,
+      { ...diffOpts, diffImg },
+      diffAreas
+    )
   )
 
   async function createDiffImg (diffOptions) {

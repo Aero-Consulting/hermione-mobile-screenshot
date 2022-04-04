@@ -48,9 +48,6 @@ module.exports = async browser => {
       hermioneCtx.assertViewResults =
         hermioneCtx.assertViewResults || AssertViewResults.create()
 
-      session.executionContext.assertMobileViewResults =
-        hermioneCtx.assertMobileViewResults || AssertViewResults.create()
-
       if (hermioneCtx.assertViewResults.hasState(state)) {
         return Promise.reject(
           new AssertViewError(`duplicate name for "${state}" state`)
@@ -60,7 +57,6 @@ module.exports = async browser => {
       const handleCaptureProcessorError = e => {
         if (e instanceof BaseStateError) {
           hermioneCtx.assertViewResults.add(e)
-          hermioneCtx.assertMobileViewResults.add(e)
         } else {
           Promise.reject(e)
         }
