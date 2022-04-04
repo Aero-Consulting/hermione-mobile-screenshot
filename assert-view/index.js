@@ -106,7 +106,6 @@ module.exports = async browser => {
         tolerance: opts.tolerance,
         antialiasingTolerance: opts.antialiasingTolerance,
         canHaveCaret,
-        // pixelRatio,
         compareOpts
       }
       const {
