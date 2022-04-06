@@ -20,6 +20,5 @@ module.exports = class ImageDiffError extends BaseStateError {
     this.diffOpts = diffOpts
     this.diffBounds = diffBounds
     this.diffClusters = diffClusters
-    this.penis = 'penis'
   }
 }
