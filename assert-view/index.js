@@ -1,132 +1,138 @@
-const fs = require('fs-extra')
+const fs = require('fs-extra');
 
-const { Image, temp } = require('gemini-core')
+const { Image, temp } = require('gemini-core');
 
-const { getCaptureProcessors } = require('./capture-processors')
-const { getTestContext } = require('../utils/mocha')
-const RuntimeConfig = require('../utils/runtime-config')
-const AssertViewResults = require('./assert-view-results')
-const BaseStateError = require('./errors/base-state-error')
-const AssertViewError = require('./errors/assert-view-error')
-const WrongPlatformError = require('./errors/wrong-platform-error')
+const { getCaptureProcessors } = require('./capture-processors');
+const { getTestContext } = require('../utils/mocha');
+const RuntimeConfig = require('../utils/runtime-config');
+const AssertViewResults = require('./assert-view-results');
+const BaseStateError = require('./errors/base-state-error');
+const AssertViewError = require('./errors/assert-view-error');
+const WrongPlatformError = require('./errors/wrong-platform-error');
 
-module.exports = async browser => {
-  const { publicAPI: session, config } = browser
-  const {
-    assertViewOpts,
-    compareOpts,
-    compositeImage,
-    screenshotDelay,
-    tolerance,
-    antialiasingTolerance
-  } = config
+module.exports = async (browser) => {
+	const { publicAPI: session, config } = browser;
+	const {
+		assertViewOpts,
+		compareOpts,
+		compositeImage,
+		screenshotDelay,
+		tolerance,
+		antialiasingTolerance,
+	} = config;
 
-  const { handleNoRefImage, handleImageDiff } = getCaptureProcessors()
+	const { handleNoRefImage, handleImageDiff } = getCaptureProcessors();
 
-  return session.addCommand(
-    'assertMobileView',
-    async (state, selector, opts = {}) => {
-      if (
-        browser.capabilities.platformName !== 'iOS' &&
-        browser.capabilities.platformName !== 'Android'
-      ) {
-        return Promise.reject(new WrongPlatformError())
-      }
+	return session.addCommand(
+		'assertMobileView',
+		async (state, selector, opts = {}) => {
+			if (
+				browser.capabilities.platformName !== 'iOS' &&
+				browser.capabilities.platformName !== 'Android'
+			) {
+				return Promise.reject(new WrongPlatformError());
+			}
 
-      opts = {
-        ...assertViewOpts,
-        compositeImage,
-        screenshotDelay,
-        tolerance,
-        antialiasingTolerance
-      }
+			opts = {
+				...assertViewOpts,
+				compositeImage,
+				screenshotDelay,
+				tolerance,
+				antialiasingTolerance,
+			};
 
-      const { hermioneCtx } = session.executionContext
-      hermioneCtx.assertViewResults =
-        hermioneCtx.assertViewResults || new AssertViewResults()
+			const { hermioneCtx } = session.executionContext;
+			hermioneCtx.assertViewResults =
+				hermioneCtx.assertViewResults || new AssertViewResults();
 
-      if (hermioneCtx.assertViewResults.hasState(state)) {
-        return Promise.reject(
-          new AssertViewError(`duplicate name for "${state}" state`)
-        )
-      }
+			if (hermioneCtx.assertViewResults.hasState(state)) {
+				return Promise.reject(
+					new AssertViewError(`duplicate name for "${state}" state`)
+				);
+			}
 
-      const handleCaptureProcessorError = e => {
-        if (e instanceof BaseStateError) {
-          hermioneCtx.assertViewResults.add(e)
-        } else {
-          Promise.reject(e)
-        }
-      }
+			const handleCaptureProcessorError = (e) => {
+				if (e instanceof BaseStateError) {
+					hermioneCtx.assertViewResults.add(e);
+				} else {
+					Promise.reject(e);
+				}
+			};
 
-      temp.init(config.system.tempDir)
-      RuntimeConfig.getInstance().extend({ tempOpts: temp.serialize() })
+			temp.init(config.system.tempDir);
+			RuntimeConfig.getInstance().extend({ tempOpts: temp.serialize() });
 
-      const { tempOpts } = RuntimeConfig.getInstance()
-      temp.attach(tempOpts)
+			const { tempOpts } = RuntimeConfig.getInstance();
+			temp.attach(tempOpts);
 
-      const element = await session.$(selector)
+			const element = await session.$(selector);
 
-      const elementScreenshot = await session.takeElementScreenshot(
-        element.elementId
-      )
+			const elementScreenshot = await session.takeElementScreenshot(
+				element.elementId
+			);
 
-      const elementScreenshotBase64Buffer = Buffer.from(
-        elementScreenshot,
-        'base64'
-      )
+			const elementScreenshotBase64Buffer = Buffer.from(
+				elementScreenshot,
+				'base64'
+			);
 
-      const currImgInst = new Image(elementScreenshotBase64Buffer)
-      const currImg = {
-        path: temp.path(Object.assign(tempOpts, { suffix: '.png' })),
-        size: currImgInst.getSize()
-      }
+			const currImgInst = new Image(elementScreenshotBase64Buffer);
+			const currImg = {
+				path: temp.path(Object.assign(tempOpts, { suffix: '.png' })),
+				size: currImgInst.getSize(),
+			};
 
-      await currImgInst.save(currImg.path)
+			await currImgInst.save(currImg.path);
 
-      const test = getTestContext(session.executionContext)
-      const refImg = { path: config.getScreenshotPath(test, state), size: null }
-      const { emitter } = browser
+			const test = getTestContext(session.executionContext);
+			const refImg = {
+				path: config.getScreenshotPath(test, state),
+				size: null,
+			};
 
-      if (!fs.existsSync(refImg.path)) {
-        return handleNoRefImage(currImg, refImg, state, { emitter }).catch(e =>
-          handleCaptureProcessorError(e)
-        )
-      }
+			const { emitter } = browser;
 
-      const canHaveCaret = true
-      const imageCompareOpts = {
-        tolerance: opts.tolerance,
-        antialiasingTolerance: opts.antialiasingTolerance,
-        canHaveCaret,
-        compareOpts
-      }
-      const {
-        equal,
-        diffBounds,
-        diffClusters,
-        metaInfo = {}
-      } = await Image.compare(refImg.path, currImg.path, imageCompareOpts)
-      Object.assign(refImg, metaInfo.refImg)
+			if (!fs.existsSync(refImg.path)) {
+				return handleNoRefImage(currImg, refImg, state, { emitter }).catch(
+					(e) => handleCaptureProcessorError(e)
+				);
+			}
 
-      if (!equal) {
-        const diffAreas = { diffBounds, diffClusters }
-        const { tolerance, antialiasingTolerance } = opts
-        const imageDiffOpts = {
-          tolerance,
-          antialiasingTolerance,
-          canHaveCaret,
-          diffAreas,
-          config,
-          path: emitter
-        }
+			const canHaveCaret = true;
+			const imageCompareOpts = {
+				tolerance: opts.tolerance,
+				antialiasingTolerance: opts.antialiasingTolerance,
+				canHaveCaret,
+				compareOpts,
+			};
 
-        return handleImageDiff(currImg, refImg, state, imageDiffOpts).catch(e =>
-          handleCaptureProcessorError(e)
-        )
-      }
+			const {
+				equal,
+				diffBounds,
+				diffClusters,
+				metaInfo = {},
+			} = await Image.compare(refImg.path, currImg.path, imageCompareOpts);
 
-      hermioneCtx.assertViewResults.add({ stateName: state, refImg: refImg })
-    }
-  )
-}
+			Object.assign(refImg, metaInfo.refImg);
+
+			if (!equal) {
+				const diffAreas = { diffBounds, diffClusters };
+				const { tolerance, antialiasingTolerance } = opts;
+				const imageDiffOpts = {
+					tolerance,
+					antialiasingTolerance,
+					canHaveCaret,
+					diffAreas,
+					config,
+					path: emitter,
+				};
+
+				return handleImageDiff(currImg, refImg, state, imageDiffOpts).catch(
+					(e) => handleCaptureProcessorError(e)
+				);
+			}
+
+			hermioneCtx.assertViewResults.add({ stateName: state, refImg: refImg });
+		}
+	);
+};

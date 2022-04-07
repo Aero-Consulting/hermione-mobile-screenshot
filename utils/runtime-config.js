@@ -1,11 +1,11 @@
 class RuntimeConfig {
-  extend (data) {
-    Object.assign(this, data)
+	extend (data) {
+		Object.assign(this, data);
 
-    return this
-  }
+		return this;
+	}
 }
 
-const runtimeConfig = new RuntimeConfig()
+const runtimeConfig = new RuntimeConfig();
 
-exports.getInstance = () => runtimeConfig
+exports.getInstance = () => runtimeConfig;

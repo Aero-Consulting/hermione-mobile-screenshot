@@ -1,6 +1,6 @@
-const RuntimeConfig = require('./runtime-config')
+const RuntimeConfig = require('./runtime-config');
 
-module.exports = argv => {
-  updateRefs = argv.includes('--update-refs')
-  RuntimeConfig.getInstance().extend({ updateRefs })
-}
+module.exports = function (argv) {
+	updateRefs = argv.includes('--update-refs');
+	RuntimeConfig.getInstance().extend({ updateRefs });
+};

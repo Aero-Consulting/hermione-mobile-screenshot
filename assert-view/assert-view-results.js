@@ -1,27 +1,27 @@
 module.exports = class AssertViewResults {
-  #results
+	#results;
 
-  constructor (results) {
-    this.#results = results || []
-  }
+	constructor (results) {
+		this.#results = results || [];
+	}
 
-  add (data) {
-    this.#results.push(data)
-  }
+	add (data) {
+		this.#results.push(data);
+	}
 
-  hasFails () {
-    return this.#results.some(res => res instanceof Error)
-  }
+	hasFails () {
+		return this.#results.some((res) => res instanceof Error);
+	}
 
-  hasState (stateName) {
-    return this.#results.some(res => res.stateName === stateName)
-  }
+	hasState (stateName) {
+		return this.#results.some((res) => res.stateName === stateName);
+	}
 
-  toRawObject () {
-    return this.#results.map(res => ({ ...res }))
-  }
+	toRawObject () {
+		return this.#results.map((res) => ({ ...res }));
+	}
 
-  get () {
-    return this.#results
-  }
-}
+	get () {
+		return this.#results;
+	}
+};

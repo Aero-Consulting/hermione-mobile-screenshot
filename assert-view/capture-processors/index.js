@@ -1,7 +1,7 @@
-const RuntimeConfig = require('../../utils/runtime-config')
+const RuntimeConfig = require('../../utils/runtime-config');
 
-const assertRefs = require('./assert-refs')
-const updateRefs = require('./update-refs')
+const assertRefs = require('./assert-refs');
+const updateRefs = require('./update-refs');
 
 exports.getCaptureProcessors = () =>
-  RuntimeConfig.getInstance().updateRefs ? updateRefs : assertRefs
+	RuntimeConfig.getInstance().updateRefs ? updateRefs : assertRefs;
