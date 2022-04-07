@@ -43,7 +43,7 @@ module.exports = async browser => {
 
       const { hermioneCtx } = session.executionContext
       hermioneCtx.assertViewResults =
-        hermioneCtx.assertViewResults || AssertViewResults.create()
+        hermioneCtx.assertViewResults || new AssertViewResults()
 
       if (hermioneCtx.assertViewResults.hasState(state)) {
         return Promise.reject(
@@ -94,7 +94,7 @@ module.exports = async browser => {
         )
       }
 
-      const { canHaveCaret } = true
+      const canHaveCaret = true
       const imageCompareOpts = {
         tolerance: opts.tolerance,
         antialiasingTolerance: opts.antialiasingTolerance,
