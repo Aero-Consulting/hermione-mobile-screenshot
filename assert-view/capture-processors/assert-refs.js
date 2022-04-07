@@ -1,9 +1,6 @@
-'use strict'
-
 const { Image, temp } = require('gemini-core')
 const RuntimeConfig = require('../../utils/runtime-config')
 
-const Promise = require('bluebird')
 const ImageDiffError = require('../errors/image-diff-error')
 const NoRefImageError = require('../errors/no-ref-image-error')
 

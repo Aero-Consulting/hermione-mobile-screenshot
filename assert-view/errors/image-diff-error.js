@@ -1,5 +1,3 @@
-'use strict'
-
 const BaseStateError = require('./base-state-error')
 
 module.exports = class ImageDiffError extends BaseStateError {

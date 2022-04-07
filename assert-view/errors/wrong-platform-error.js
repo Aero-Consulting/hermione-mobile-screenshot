@@ -1,5 +1,3 @@
-'use strict'
-
 module.exports = class WrongPlatformError extends Error {
   constructor (message) {
     super()

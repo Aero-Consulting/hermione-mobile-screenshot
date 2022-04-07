@@ -1,8 +1,3 @@
-'use strict'
-
-const ImageDiffError = require('./errors/image-diff-error')
-const NoRefImageError = require('./errors/no-ref-image-error')
-
 module.exports = class AssertViewResults {
   static create (results) {
     return new AssertViewResults(results)

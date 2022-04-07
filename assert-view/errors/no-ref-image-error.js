@@ -1,5 +1,3 @@
-'use strict'
-
 const BaseSateError = require('./base-state-error')
 
 module.exports = class NoRefImageError extends BaseSateError {

@@ -2,7 +2,6 @@
 
 const fs = require('fs-extra')
 const _ = require('lodash')
-const sharp = require('sharp')
 
 const { Image, temp } = require('gemini-core')
 
@@ -31,8 +30,8 @@ module.exports = async browser => {
     'assertMobileView',
     async (state, selector, opts = {}) => {
       if (
-        browser.capabilities.platformName != 'iOS' &&
-        browser.capabilities.platformName != 'Android'
+        browser.capabilities.platformName !== 'iOS' &&
+        browser.capabilities.platformName !== 'Android'
       ) {
         return Promise.reject(new WrongPlatformError())
       }

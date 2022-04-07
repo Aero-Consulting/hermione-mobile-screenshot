@@ -1,5 +1,3 @@
-'use strict'
-
 const assertMobileView = require('./assert-view')
 const addUpdateRefs = require('./utils/readEnvs')
 

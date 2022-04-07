@@ -1,5 +1,3 @@
-'use strict'
-
 const fs = require('fs-extra')
 
 exports.handleNoRefImage = exports.handleImageDiff = async (

@@ -1,5 +1,3 @@
-'use strict'
-
 const RuntimeConfig = require('../../utils/runtime-config')
 
 const assertRefs = require('./assert-refs')
