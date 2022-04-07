@@ -1,17 +1,17 @@
 const assertMobileView = require('./assert-view')
-const addUpdateRefs = require('./utils/readEnvs')
+const updateRefsCheck = require('./utils/updateRefsCheck')
 
 module.exports = async (hermione, opts) => {
   if (!opts.enabled) {
     return
   }
 
-  addUpdateRefs(process.argv)
+  updateRefsCheck(process.argv)
 
   hermione.on(hermione.events.NEW_BROWSER, async (browser, { browserId }) => {
     hermione._runner._browserPool._browsers[browserId].forEach(
-      async existingBrowser => {
-        await assertMobileView(existingBrowser)
+      existingBrowser => {
+        assertMobileView(existingBrowser)
       }
     )
   })

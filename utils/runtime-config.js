@@ -1,11 +1,4 @@
-/**
- * @singleton
- */
 class RuntimeConfig {
-  static create () {
-    return new RuntimeConfig()
-  }
-
   extend (data) {
     Object.assign(this, data)
 
@@ -13,12 +6,6 @@ class RuntimeConfig {
   }
 }
 
-let runtimeConfig
+const runtimeConfig = new RuntimeConfig()
 
-exports.getInstance = () => {
-  if (!runtimeConfig) {
-    runtimeConfig = RuntimeConfig.create()
-  }
-
-  return runtimeConfig
-}
+exports.getInstance = () => runtimeConfig

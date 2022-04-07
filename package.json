@@ -17,10 +17,7 @@
   },
   "homepage": "https://github.com/Aero-Consulting/hermione-mobile-screenshot#readme",
   "dependencies": {
-    "bluebird": "^3.7.2",
     "fs-extra": "^10.0.1",
-    "gemini-core": "^6.4.0",
-    "lodash": "^4.17.21",
-    "sharp": "^0.30.3"
+    "gemini-core": "^6.4.0"
   }
 }

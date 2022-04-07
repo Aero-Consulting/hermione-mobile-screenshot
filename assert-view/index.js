@@ -1,7 +1,4 @@
-'use strict'
-
 const fs = require('fs-extra')
-const _ = require('lodash')
 
 const { Image, temp } = require('gemini-core')
 
@@ -36,12 +33,13 @@ module.exports = async browser => {
         return Promise.reject(new WrongPlatformError())
       }
 
-      opts = _.defaults(opts, assertViewOpts, {
+      opts = {
+        ...assertViewOpts,
         compositeImage,
         screenshotDelay,
         tolerance,
         antialiasingTolerance
-      })
+      }
 
       const { hermioneCtx } = session.executionContext
       hermioneCtx.assertViewResults =
