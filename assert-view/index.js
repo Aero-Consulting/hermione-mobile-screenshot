@@ -1,6 +1,6 @@
 const fs = require('fs-extra');
 
-const { Image, temp } = require('gemini-core');
+const { Image, temp, ScreenShooter } = require('gemini-core');
 
 const { getCaptureProcessors } = require('./capture-processors');
 const { getTestContext } = require('../utils/mocha');
@@ -11,6 +11,15 @@ const AssertViewError = require('./errors/assert-view-error');
 const WrongPlatformError = require('./errors/wrong-platform-error');
 
 module.exports = async (browser) => {
+	const isMobile =
+		browser.capabilities.platformName === 'iOS' ||
+		browser.capabilities.platformName === 'Android';
+
+	let screenShooter;
+	if (!isMobile) {
+		screenShooter = ScreenShooter.create(browser);
+	}
+
 	const { publicAPI: session, config } = browser;
 	const {
 		assertViewOpts,
@@ -25,14 +34,7 @@ module.exports = async (browser) => {
 
 	return session.addCommand(
 		'assertMobileView',
-		async (state, selector, opts = {}) => {
-			if (
-				browser.capabilities.platformName !== 'iOS' &&
-				browser.capabilities.platformName !== 'Android'
-			) {
-				return Promise.reject(new WrongPlatformError());
-			}
-
+		async (state, selectors, opts = {}) => {
 			opts = {
 				...assertViewOpts,
 				compositeImage,
@@ -59,24 +61,54 @@ module.exports = async (browser) => {
 				}
 			};
 
+			let page;
+			if (!isMobile) {
+				page = await browser.prepareScreenshot([].concat(selectors), {
+					ignoreSelectors: [].concat(opts.ignoreElements),
+					allowViewportOverflow: opts.allowViewportOverflow,
+					captureElementFromTop: opts.captureElementFromTop,
+					selectorToScroll: opts.selectorToScroll,
+				});
+			}
+
 			temp.init(config.system.tempDir);
 			RuntimeConfig.getInstance().extend({ tempOpts: temp.serialize() });
 
 			const { tempOpts } = RuntimeConfig.getInstance();
 			temp.attach(tempOpts);
 
-			const element = await session.$(selector);
+			let currImgInst;
 
-			const elementScreenshot = await session.takeElementScreenshot(
-				element.elementId
-			);
+			if (isMobile) {
+				const element = await session.$(selector);
+				const elementScreenshot = await session.takeElementScreenshot(
+					element.elementId
+				);
 
-			const elementScreenshotBase64Buffer = Buffer.from(
-				elementScreenshot,
-				'base64'
-			);
+				const elementScreenshotBase64Buffer = Buffer.from(
+					elementScreenshot,
+					'base64'
+				);
 
-			const currImgInst = new Image(elementScreenshotBase64Buffer);
+				currImgInst = new Image(elementScreenshotBase64Buffer);
+			} else {
+				const {
+					allowViewportOverflow,
+					compositeImage,
+					screenshotDelay,
+					selectorToScroll,
+				} = opts;
+
+				const screenshoterOpts = {
+					allowViewportOverflow,
+					compositeImage,
+					screenshotDelay,
+					selectorToScroll,
+				};
+
+				currImgInst = await screenShooter.capture(page, screenshoterOpts);
+			}
+
 			const currImg = {
 				path: temp.path(Object.assign(tempOpts, { suffix: '.png' })),
 				size: currImgInst.getSize(),
@@ -98,11 +130,20 @@ module.exports = async (browser) => {
 				);
 			}
 
-			const canHaveCaret = true;
+			let caretRatioOptions;
+			if (isMobile) {
+				caretRatioOptions = { canHaveCaret: true };
+			} else {
+				caretRatioOptions = {
+					canHaveCaret: page.canHaveCaret,
+					pixelRatio: page.pixelRatio,
+				};
+			}
+
 			const imageCompareOpts = {
 				tolerance: opts.tolerance,
 				antialiasingTolerance: opts.antialiasingTolerance,
-				canHaveCaret,
+				...caretRatioOptions,
 				compareOpts,
 			};
 
@@ -121,11 +162,15 @@ module.exports = async (browser) => {
 				const imageDiffOpts = {
 					tolerance,
 					antialiasingTolerance,
-					canHaveCaret,
+					...caretRatioOptions,
 					diffAreas,
 					config,
-					path: emitter,
+					emitter,
 				};
+
+				if (isMobile) {
+					imageDiffOpts.push({ path: emitter });
+				}
 
 				return handleImageDiff(currImg, refImg, state, imageDiffOpts).catch(
 					(e) => handleCaptureProcessorError(e)
