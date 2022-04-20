@@ -11,9 +11,11 @@ const AssertViewError = require('./errors/assert-view-error');
 const WrongPlatformError = require('./errors/wrong-platform-error');
 
 module.exports = async (browser) => {
+	const platformName = browser?.capabilities?.platformName;
+	const browserName = browser?.capabilities?.browserName;
 	const isMobile =
-		browser.capabilities.platformName === 'iOS' ||
-		browser.capabilities.platformName === 'Android';
+		(platformName === 'iOS' && browserName != 'safari') ||
+		platformName === 'Android';
 
 	let screenShooter;
 	if (!isMobile) {
@@ -80,7 +82,7 @@ module.exports = async (browser) => {
 			let currImgInst;
 
 			if (isMobile) {
-				const element = await session.$(selector);
+				const element = await session.$(selectors);
 				const elementScreenshot = await session.takeElementScreenshot(
 					element.elementId
 				);
