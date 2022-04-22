@@ -39,6 +39,7 @@ module.exports = async (browser) => {
 		async (state, selectors, opts = {}) => {
 			opts = {
 				...assertViewOpts,
+				...opts,
 				compositeImage,
 				screenshotDelay,
 				tolerance,
