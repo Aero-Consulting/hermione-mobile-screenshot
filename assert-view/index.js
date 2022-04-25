@@ -14,8 +14,8 @@ module.exports = async (browser) => {
 	const platformName = browser?.capabilities?.platformName;
 	const browserName = browser?.capabilities?.browserName;
 	const isMobile =
-		(platformName === 'iOS' && browserName != 'safari') ||
-		platformName === 'Android';
+		(platformName === 'iOS' && !browserName) ||
+		(platformName === 'Android' && !browserName);
 
 	let screenShooter;
 	if (!isMobile) {

@@ -33,33 +33,7 @@ exports.handleImageDiff = async (currImg, refImg, state, opts) => {
 		...buildDiffOpts,
 	};
 
-	const diffImg = await createDiffImg(diffOpts);
-
 	return Promise.reject(
-		ImageDiffError.create(
-			state,
-			currImg,
-			refImg,
-			{ ...diffOpts, diffImg },
-			diffAreas
-		)
+		ImageDiffError.create(state, currImg, refImg, diffOpts, diffAreas)
 	);
-
-	async function createDiffImg (diffOptions) {
-		const { tempOpts } = RuntimeConfig.getInstance();
-		temp.attach(tempOpts);
-
-		const diffPath = temp.path(Object.assign(tempOpts, { suffix: '.png' }));
-		const diffBuffer = await Image.buildDiff(diffOptions);
-
-		const diffImgInst = new Image(diffBuffer);
-		const diffImg = {
-			path: diffPath,
-			size: diffImgInst.getSize(),
-		};
-
-		await diffImgInst.save(diffImg.path);
-
-		return diffImg;
-	}
 };
