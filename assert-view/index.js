@@ -8,7 +8,6 @@ const RuntimeConfig = require('../utils/runtime-config');
 const AssertViewResults = require('./assert-view-results');
 const BaseStateError = require('./errors/base-state-error');
 const AssertViewError = require('./errors/assert-view-error');
-const WrongPlatformError = require('./errors/wrong-platform-error');
 
 module.exports = async (browser) => {
 	const platformName = browser?.capabilities?.platformName;
@@ -60,7 +59,7 @@ module.exports = async (browser) => {
 				if (e instanceof BaseStateError) {
 					hermioneCtx.assertViewResults.add(e);
 				} else {
-					Promise.reject(e);
+					return Promise.reject(e);
 				}
 			};
 
