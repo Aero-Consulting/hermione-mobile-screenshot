@@ -16,11 +16,6 @@ module.exports = async (browser) => {
 		(platformName === 'iOS' && !browserName) ||
 		(platformName === 'Android' && !browserName);
 
-	let screenShooter;
-	if (!isMobile) {
-		screenShooter = ScreenShooter.create(browser);
-	}
-
 	const { publicAPI: session, config } = browser;
 	const {
 		assertViewOpts,
@@ -63,7 +58,7 @@ module.exports = async (browser) => {
 				}
 			};
 
-			let page;
+			let page, screenShooter;
 			if (!isMobile) {
 				page = await browser.prepareScreenshot([].concat(selectors), {
 					ignoreSelectors: [].concat(opts.ignoreElements),
@@ -71,6 +66,8 @@ module.exports = async (browser) => {
 					captureElementFromTop: opts.captureElementFromTop,
 					selectorToScroll: opts.selectorToScroll,
 				});
+
+				screenShooter = ScreenShooter.create(browser);
 			}
 
 			temp.init(config.system.tempDir);
@@ -80,7 +77,6 @@ module.exports = async (browser) => {
 			temp.attach(tempOpts);
 
 			let currImgInst;
-
 			if (isMobile) {
 				const element = await session.$(selectors);
 				const elementScreenshot = await session.takeElementScreenshot(
@@ -132,15 +128,12 @@ module.exports = async (browser) => {
 				);
 			}
 
-			let caretRatioOptions;
-			if (isMobile) {
-				caretRatioOptions = { canHaveCaret: true };
-			} else {
-				caretRatioOptions = {
-					canHaveCaret: page.canHaveCaret,
-					pixelRatio: page.pixelRatio,
-				};
-			}
+			let caretRatioOptions = isMobile
+				? { canHaveCaret: true }
+				: {
+						canHaveCaret: page.canHaveCaret,
+						pixelRatio: page.pixelRatio,
+				  };
 
 			const imageCompareOpts = {
 				tolerance: opts.tolerance,
