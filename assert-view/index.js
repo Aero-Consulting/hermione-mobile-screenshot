@@ -123,9 +123,13 @@ module.exports = async (browser) => {
 			const { emitter } = browser;
 
 			if (!fs.existsSync(refImg.path)) {
-				return handleNoRefImage(currImg, refImg, state, { emitter }).catch(
-					(e) => handleCaptureProcessorError(e)
-				);
+				return handleNoRefImage(
+					currImg,
+					refImg,
+					state,
+					{ emitter },
+					hermioneCtx
+				).catch((e) => handleCaptureProcessorError(e));
 			}
 
 			let caretRatioOptions = isMobile

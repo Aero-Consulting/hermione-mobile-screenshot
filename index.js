@@ -8,7 +8,7 @@ module.exports = async (hermione, opts) => {
 
 	updateRefsCheck(process.argv);
 
-	hermione.on(hermione.events.NEW_BROWSER, async (browser, { browserId }) => {
+	hermione.on(hermione.events.NEW_BROWSER, (browser, { browserId }) => {
 		hermione._runner._browserPool._browsers[browserId].forEach(
 			(existingBrowser) => {
 				assertMobileView(existingBrowser);

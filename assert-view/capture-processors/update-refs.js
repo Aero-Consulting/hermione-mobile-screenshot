@@ -4,8 +4,11 @@ exports.handleNoRefImage = exports.handleImageDiff = async (
 	currImg,
 	refImg,
 	state,
-	{ emitter }
+	{ emitter },
+	hermioneCtx
 ) => {
 	await fs.copy(currImg.path, refImg.path);
+
+	hermioneCtx.assertViewResults.add({ stateName: state, refImg: refImg });
 	emitter.emit('updateReference', { state, refImg });
 };
