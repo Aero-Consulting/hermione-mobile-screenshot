@@ -1,0 +1,23 @@
+{
+  "name": "hermione-mobile-screenshot",
+  "version": "0.1.0",
+  "description": "Make screenshots on mobile with Hermiones",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Aero-Consulting/hermione-mobile-screenshot.git"
+  },
+  "author": "Lakotko A.",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Aero-Consulting/hermione-mobile-screenshot/issues"
+  },
+  "homepage": "https://github.com/Aero-Consulting/hermione-mobile-screenshot#readme",
+  "dependencies": {
+    "fs-extra": "^10.0.1",
+    "gemini-core": "^6.4.0"
+  }
+}
